@@ -197,8 +197,8 @@ def render_home_page():
     st.markdown("<h2 style='color: #f3f4f6;'>How to use the Dashboard</h2>", unsafe_allow_html=True)
     st.markdown("""
     <ol style='color: #9ca3af; font-size: 1.05rem; line-height: 1.8;'>
-        <li>Access the <b>Market Intelligence</b> module via the sidebar navigation.</li>
-        <li>Set your <b>Capital Allocation</b> limit to reflect your liquid GP asset.</li>
+        <li>Access the <b>Market Intelligence Dashboard</b> using the toggle at the top of your screen.</li>
+        <li>Set your <b>Capital Allocation</b> inside the Filters Expander to reflect your liquid GP asset.</li>
         <li>Select your <b>Target Market</b> (Free-to-Play or Members).</li>
         <li>Review high-priority assets on the recommendation panel.</li>
         <li>Click any row on the data matrix to generate an execution protocol.</li>
@@ -229,38 +229,41 @@ def render_dashboard():
         st.error("Disconnected from the matrix. Run the ingestion pipeline before opening this.")
         return
 
-    # --- CONTROL PANEL (SIDEBAR) ---
-    st.sidebar.markdown("<h3 style='font-size: 1.0rem; color: #60a5fa; letter-spacing: 0.05em; text-transform: uppercase;'>Execution Parameters</h3>", unsafe_allow_html=True)
-    
-    market_type = st.sidebar.radio("Market Segment", ["Global Index", "Free-to-Play Only", "Members Only"])
-    st.sidebar.markdown("<hr style='margin: 10px 0;'>", unsafe_allow_html=True)
-    
-    budget = st.sidebar.number_input("Capital Allocation (GP)", min_value=1000, value=3000000, step=500000)
-    st.sidebar.markdown("<hr style='margin: 10px 0;'>", unsafe_allow_html=True)
-    
-    hunt_mode = st.sidebar.selectbox("Risk/Reward Profile", [
-        "High-Frequency (Low Margin/High Vol)", 
-        "Value Arbitrage (Med Margin/Med Vol)", 
-        "Deep Value (High Margin/Low Vol)",
-        "Manual Override"
-    ])
+    # --- CONTROL PANEL (EXPANDER INSTEAD OF SIDEBAR) ---
+    # Moved to an expander so mobile users can easily access it without opening a hidden sidebar
+    with st.expander("Execution Parameters (Filters & Setup)", expanded=False):
+        sys_col1, sys_col2, sys_col3 = st.columns(3)
+        with sys_col1:
+            market_type = st.selectbox("Market Segment", ["Global Index", "Free-to-Play Only", "Members Only"])
+        with sys_col2:
+            budget = st.number_input("Capital Allocation (GP)", min_value=1000, value=3000000, step=500000)
+        with sys_col3:
+            hunt_mode = st.selectbox("Risk/Reward Profile", [
+                "High-Frequency (Low Margin/High Vol)", 
+                "Value Arbitrage (Med Margin/Med Vol)", 
+                "Deep Value (High Margin/Low Vol)",
+                "Manual Override"
+            ])
 
-    # Dynamic Filter Logic
-    processed_df = df
-    if market_type == "Free-to-Play Only":
-        processed_df = processed_df.filter(pl.col("members") == False)
-    elif market_type == "Members Only":
-        processed_df = processed_df.filter(pl.col("members") == True)
+        # Dynamic Filter Logic
+        processed_df = df
+        if market_type == "Free-to-Play Only":
+            processed_df = processed_df.filter(pl.col("members") == False)
+        elif market_type == "Members Only":
+            processed_df = processed_df.filter(pl.col("members") == True)
 
-    if hunt_mode == "High-Frequency (Low Margin/High Vol)":
-        min_roi, min_liq = 0.5, 0.005
-    elif hunt_mode == "Value Arbitrage (Med Margin/Med Vol)":
-        min_roi, min_liq = 2.0, 0.001
-    elif hunt_mode == "Deep Value (High Margin/Low Vol)":
-        min_roi, min_liq = 5.0, 0.0001
-    else: 
-        min_roi = st.sidebar.slider("Minimum Return on Investment (%)", 0.0, 20.0, 1.0)
-        min_liq = st.sidebar.slider("Minimum Trade Volume", 0.0, 0.05, 0.001)
+        if hunt_mode == "High-Frequency (Low Margin/High Vol)":
+            min_roi, min_liq = 0.5, 0.005
+        elif hunt_mode == "Value Arbitrage (Med Margin/Med Vol)":
+            min_roi, min_liq = 2.0, 0.001
+        elif hunt_mode == "Deep Value (High Margin/Low Vol)":
+            min_roi, min_liq = 5.0, 0.0001
+        else:
+            sl1, sl2 = st.columns(2)
+            with sl1:
+                min_roi = st.slider("Minimum Return on Investment (%)", 0.0, 20.0, 1.0)
+            with sl2:
+                min_liq = st.slider("Minimum Trade Volume", 0.0, 0.05, 0.001)
 
     # --- CORE PROCESSING ---
     processed_df = processed_df.filter(
@@ -378,11 +381,17 @@ def render_dashboard():
             st.success(f"### EXECUTION PROTOCOL\n1. Place Limit Order to **BUY {selected_item['qty']:,.0f}x '{selected_item['name']}'** at **{selected_item['low']:,.0f} GP** each.\n2. Total Capital Required: **{(selected_item['qty'] * selected_item['low']):,.0f} GP**.\n3. Upon fill, place Limit Order to **SELL** liquid asset for **{selected_item['high']:,.0f} GP**.\n\n**PROJECTED NET YIELD (Post-Tax): +{selected_item['profit']:,.0f} GP**.")
 
 def main():
-    st.sidebar.markdown("<h3 style='font-size: 1.0rem; color: #60a5fa; letter-spacing: 0.05em; text-transform: uppercase;'>System Navigation</h3>", unsafe_allow_html=True)
-    nav_option = st.sidebar.radio("Module", ["System Overview", "Market Intelligence"])
-    st.sidebar.markdown("<hr style='margin: 10px 0; border-color: #1f2937;'>", unsafe_allow_html=True)
+    # Moved navigation out of the sidebar for better mobile UX
+    st.markdown("<div style='text-align: center;'>", unsafe_allow_html=True)
+    nav_option = st.radio(
+        "Navigation", 
+        ["System Overview", "Market Intelligence Dashboard"], 
+        horizontal=True,
+        label_visibility="collapsed"
+    )
+    st.markdown("</div><hr style='margin: 0px 0 20px 0; border-color: #1f2937;'>", unsafe_allow_html=True)
     
-    if nav_option == "System Overview":
+    if "Overview" in nav_option:
         render_home_page()
     else:
         render_dashboard()
