@@ -56,3 +56,4 @@ urllib3==2.6.3
 watchdog==6.0.0
 win32_setctime==1.2.0
 connectorx
+psycopg2-binary
