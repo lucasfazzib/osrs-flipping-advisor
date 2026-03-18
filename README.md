@@ -11,8 +11,13 @@ This project is designed to run 24/7 autonomously using a Modern Data Stack:
 4. **Supabase / PostgreSQL (Data Warehouse):** Live syncs the filtered subset of highly liquid, profitable gold margins using `psycopg2`.
 5. **Streamlit Community Cloud (Frontend):** Renders the visual terminal, fetching data straight from the Supabase warehouse with 60-second TTL caching.
 
+<<<<<<< HEAD
 ## íº€ Live Demo
 Access the live intelligence terminal here: **[Insert Your Streamlit Link]**
+=======
+##  Live Demo
+Access the live intelligence terminal here: **[https://osrs-flipping-advisor.streamlit.app/]**
+>>>>>>> 5ae5a32d4b4eaf2c0c14ce888473e300c05d2aa2
 
 ---
 
