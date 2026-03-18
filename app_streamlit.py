@@ -137,7 +137,7 @@ def load_market_intelligence():
         try:
             return pl.read_database_uri(
                 query="SELECT * FROM gold_margins ORDER BY liquidity_score DESC",
-                connection=supabase_url
+                uri=supabase_url
             )
         except Exception as e:
             st.error(f"Failed connecting to Data Warehouse: {e}")
