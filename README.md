@@ -13,6 +13,18 @@ A fully automated, end-to-end Data Engineering and Quantitative Analysis pipelin
 ### Quantitative Flipping Datagrid & Execution Protocol
 ![Dashboard 2](tests/dashboard2.png)
 
+## 📊 The Quant Execution Terminal
+
+One of the platform's crown jewels is the **Execution Protocol Modal**—a Wall Street-style terminal interface triggered by selecting any asset on the Datagrid. Instead of leaving users guessing how to trade, it mathematicalizes the maneuver:
+
+### 1. The Strategy (Escrow & Execution)
+It guides you through standard limit order inputs, securely calculating your required capital lockup based on live volume constraints, and projects the net post-tax yield instantly.
+
+### 2. Algorithmic Profiling & Metrics
+- **A. Spread Analysis:** Mathematically models the GE 2% Tax ceiling and calculates the *Effective (Clean) Spread*.
+- **B. Stochastic Liquidity Index ($L_{idx}$):** Uses a Bayesian-inspired logarithmic scale to formulate the risk profile of an asset freezing in your inventory. Any asset pushing $> 5.0$ guarantees near-instant robotic algorithmic fills.
+- **C. Expected Value (EV):** Translates the raw margin into a probability-weighted projection.
+
 ## 🏗️ Cloud-Native Architecture
 
 This project is designed to run 24/7 autonomously using a Modern Data Stack:
