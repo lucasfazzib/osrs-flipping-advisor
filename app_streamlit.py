@@ -135,7 +135,7 @@ def load_market_intelligence():
         
     if supabase_url:
         try:
-            return pl.read_database(
+            return pl.read_database_uri(
                 query="SELECT * FROM gold_margins ORDER BY liquidity_score DESC",
                 connection=supabase_url
             )
