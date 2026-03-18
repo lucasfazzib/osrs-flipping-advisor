@@ -181,7 +181,7 @@ def render_home_page():
         st.markdown("""
         <div style='background-color: rgba(17, 24, 39, 0.55); backdrop-filter: blur(10px); padding: 20px; border-radius: 8px; height: 100%; border: 1px solid rgba(16, 185, 129, 0.3);'>
             <h3 style='color: #10b981;'>2. Understanding the GE Tax</h3>
-            <p style='color: #9ca3af; font-size: 0.95rem; line-height: 1.5;'>The Grand Exchange applies a 1% tax (capped at 5m GP) on all sold items. Our algorithm already deducts this tax to show you your <b>Clean Profit</b>. If it shows positive, you make money.</p>
+            <p style='color: #9ca3af; font-size: 0.95rem; line-height: 1.5;'>The Grand Exchange applies a 2% tax (capped at 5m GP) on all sold items. Our algorithm already deducts this tax to show you your <b>Clean Profit</b>. If it shows positive, you make money.</p>
         </div>
         """, unsafe_allow_html=True)
     with c3:
