@@ -9,7 +9,7 @@ def calculate_flipping_metrics(df_latest: pl.DataFrame, df_mapping: pl.DataFrame
     - Join mapping metadata with prices
     - Calculate Quant metrics:
         - raw_spread
-        - ge_tax (1% capped at 5M)
+        - ge_tax (2% capped at 5M)
         - effective_spread (high*(1-tax) - low)
         - roi_pct
         - potential_profit_per_limit (if we fill the buy limit)
@@ -18,7 +18,7 @@ def calculate_flipping_metrics(df_latest: pl.DataFrame, df_mapping: pl.DataFrame
     df = df_latest.join(df_mapping, on="id")
     
     # Financial Logic
-    # GE Tax: 1% but max 5M GP. Note: Only applies when SELLING (the high price).
+    # GE Tax: 2% but max 5M GP. Note: Only applies when SELLING (the high price).
     df = df.with_columns([
         ((pl.col("high") * tax_rate).floor().clip(upper_bound=tax_cap)).alias("ge_tax")
     ])

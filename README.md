@@ -18,7 +18,7 @@ A fully automated, end-to-end Data Engineering and Quantitative Analysis pipelin
 This project is designed to run 24/7 autonomously using a Modern Data Stack:
 1. **GitHub Actions (Cron Orchestrator):** Runs the ETL pipeline (`full_run.py`) every 5 minutes.
 2. **OSRS Wiki API (Data Lake Source):** Extracts thousands of mapping data and 5-minute timeseries volumes.
-3. **Polars & Python (Quant Engine):** Calculates effective spreads, subtracts the GE 1% Tax algorithmically, and generates Liquidity Scores.
+3. **Polars & Python (Quant Engine):** Calculates effective spreads, subtracts the GE 2% Tax algorithmically, and generates Liquidity Scores.
 4. **Supabase / PostgreSQL (Data Warehouse):** Live syncs the filtered subset of highly liquid, profitable gold margins using `psycopg2`.
 5. **Streamlit Community Cloud (Frontend):** Renders the visual terminal, fetching data straight from the Supabase warehouse with 60-second TTL caching.
 
@@ -101,7 +101,7 @@ response = requests.get('https://prices.runescape.wiki/api/v1/osrs/latest', head
 You can adjust the boundaries of what the engine considers "profitable" or "liquid" by modifying `configs/settings.yaml`.
 ```yaml
 quant:
-  tax_rate: 0.01          # Standard Grand Exchange Tax (1%)
+  tax_rate: 0.02          # Standard Grand Exchange Tax (2%)
   tax_cap: 5000000        # GE Tax cap rules
   min_liquidity: 1000000  # Minimum 1,000,000 GP moved in the last 5 minutes to be listed
   min_spread_pct: 0.01    # Minimum required clean profit margin (1%)
