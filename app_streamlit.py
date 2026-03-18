@@ -219,45 +219,81 @@ def render_home_page():
     st.info("DATA UPDATE FREQUENCY: Market data is updated automatically every 5 minutes to capture real-time trends from the Grand Exchange.")
 
 import math
-@st.dialog("Execution Protocol & Analytics", width="large")
+@st.dialog("Terminal / Execution Protocol", width="large")
 def show_execution_protocol(selected_item):
-    st.markdown(f"## {selected_item['name']} - Execution Protocol")
-    st.success(
-        f"**1. BUY ORDER:** Place limit order to buy **{selected_item['qty']:,.0f}x** at **{selected_item['low']:,.0f} GP** each.  \n"
-        f"**2. ALLOCATION:** Total capital securely required is **{(selected_item['qty'] * selected_item['low']):,.0f} GP**.  \n"
-        f"**3. SELL ORDER:** Immediately upon fill, sell asset bag at **{selected_item['high']:,.0f} GP** each.  \n\n"
-        f"**🏆 PROJECTED POST-TAX YIELD:** +{selected_item['profit']:,.0f} GP"
-    )
+    # Top banner HTML
+    st.markdown(f"""
+    <div style="display: flex; align-items: center; border-bottom: 1px solid #1f2937; padding-bottom: 20px; margin-bottom: 25px;">
+        <img src="{selected_item['icon_url']}" style="width: 56px; height: 56px; margin-right: 20px; filter: drop-shadow(0px 4px 6px rgba(0,0,0,0.5));" />
+        <div style="display: flex; flex-direction: column;">
+            <h2 style="margin: 0; padding: 0; color: #f3f4f6; font-size: 1.8rem; letter-spacing: 0.5px;">{selected_item['name']}</h2>
+            <span style="color: #10b981; font-weight: 700; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1.5px; margin-top: 4px;">Alpha Signal Confirmed</span>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
     
-    st.markdown("---")
+    st.markdown("<h4 style='color: #9ca3af; font-size: 1rem; margin-bottom: 15px;'>1. Trade Execution Protocol</h4>", unsafe_allow_html=True)
+    
+    c1, c2, c3 = st.columns(3)
+    with c1:
+        st.markdown(f"""
+        <div style="background: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.2); border-top: 3px solid #10b981; padding: 15px; border-radius: 6px; height: 100%;">
+            <div style="font-size: 0.75rem; color: #9ca3af; text-transform: uppercase; font-weight: 600;">Step 1: Open Position</div>
+            <div style="font-size: 1.3rem; font-weight: 800; color: #f3f4f6; margin-top: 8px;">BUY {selected_item['qty']:,.0f}x</div>
+            <div style="font-size: 0.9rem; color: #d1d5db; margin-top: 5px;">@ <span style="color: #10b981; font-weight:700;">{selected_item['low']:,.0f} GP</span></div>
+        </div>
+        """, unsafe_allow_html=True)
+    with c2:
+        st.markdown(f"""
+        <div style="background: rgba(59, 130, 246, 0.05); border: 1px solid rgba(59, 130, 246, 0.2); border-top: 3px solid #3b82f6; padding: 15px; border-radius: 6px; height: 100%;">
+            <div style="font-size: 0.75rem; color: #9ca3af; text-transform: uppercase; font-weight: 600;">Step 2: Capital Lock</div>
+            <div style="font-size: 1.3rem; font-weight: 800; color: #f3f4f6; margin-top: 8px;">{selected_item['qty'] * selected_item['low']:,.0f} GP</div>
+            <div style="font-size: 0.9rem; color: #8b92a5; margin-top: 5px;">Total Escrow Required</div>
+        </div>
+        """, unsafe_allow_html=True)
+    with c3:
+        st.markdown(f"""
+        <div style="background: rgba(245, 158, 11, 0.05); border: 1px solid rgba(245, 158, 11, 0.2); border-top: 3px solid #f59e0b; padding: 15px; border-radius: 6px; height: 100%;">
+            <div style="font-size: 0.75rem; color: #9ca3af; text-transform: uppercase; font-weight: 600;">Step 3: Close Position</div>
+            <div style="font-size: 1.3rem; font-weight: 800; color: #f3f4f6; margin-top: 8px;">SELL ALL</div>
+            <div style="font-size: 0.9rem; color: #d1d5db; margin-top: 5px;">@ <span style="color: #f59e0b; font-weight:700;">{selected_item['high']:,.0f} GP</span></div>
+        </div>
+        """, unsafe_allow_html=True)
+        
+    st.markdown(f"""
+    <div style="margin-top: 25px; margin-bottom: 30px; background: linear-gradient(90deg, rgba(16, 185, 129, 0.15) 0%, rgba(17, 24, 39, 0) 100%); border-left: 4px solid #10b981; padding: 20px; border-radius: 0 8px 8px 0;">
+        <span style="font-size: 0.85rem; color: #9ca3af; text-transform: uppercase; font-weight: 600; letter-spacing: 1px;">Projected Post-Tax Yield</span><br>
+        <span style="font-size: 2.2rem; font-weight: 800; color: #10b981; text-shadow: 0 0 15px rgba(16, 185, 129, 0.2); margin-top: 5px; display: inline-block;">+{selected_item['profit']:,.0f} GP</span>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    st.markdown("<h4 style='color: #9ca3af; font-size: 1rem; margin-bottom: 20px; border-bottom: 1px solid #1f2937; padding-bottom: 10px;'>2. Algorithmic Profile & Quant Metrics</h4>", unsafe_allow_html=True)
     show_quant_analytics_inner(selected_item)
 
 def show_quant_analytics_inner(row):
-    st.markdown("### 📊 Algorithmic Profile")
-    st.latex(r'''
-    \text{Effective Spread} = \left\lfloor Bid \times (1 - \tau) \right\rfloor - Ask
-    ''')
-    st.latex(f"({row['high']:,.0f} \\times 0.98) - {row['low']:,.0f} = {row['effective_spread']:,.0f} \\text{{ GP}}")
-    
-    st.markdown("---")
-    
-    st.markdown("**2. Stochastic Liquidity Index ($L_{idx}$)**")
-    st.latex(r'''
-    L_{idx} = \ln\left( \sum_{t=1}^{5} V_t \times \bar{P} \right) \times \Phi(\text{Risk})
-    ''')
-    try:
-        li_val = math.log(max(row.get('last_5m_gp_flow', 0), 1) + 1) * 1.5
-    except:
-        li_val = 0
-    st.info(f"Calculated $L_{{idx}}$: **{li_val:.2f}** (Threshold: > 5.0 indicates high probability)")
+    q1, q2 = st.columns(2)
+    with q1:
+        st.markdown("<div style='font-size: 0.85rem; color: #f3f4f6; font-weight: 600; margin-bottom: 10px;'>A. Spread Analysis</div>", unsafe_allow_html=True)
+        st.latex(r'\text{Eff Spread} = \left\lfloor Bid \times 0.98 \right\rfloor - Ask')
+        st.latex(f"({row['high']:,.0f} \\times 0.98) - {row['low']:,.0f} = {row['effective_spread']:,.0f} \\text{{ GP}}")
+    with q2:
+        try:
+            li_val = math.log(max(row.get('last_5m_gp_flow', 0), 1) + 1) * 1.5
+        except:
+            li_val = 0
+            
+        st.markdown("<div style='font-size: 0.85rem; color: #f3f4f6; font-weight: 600; margin-bottom: 10px;'>B. Stochastic Liquidity Index ($L_{idx}$)</div>", unsafe_allow_html=True)
+        st.latex(r'L_{idx} = \ln\left( \sum_{t=1}^{5} V_t \times \bar{P} \right) \times \Phi(\text{Risk})')
+        st.markdown(f"<div style='background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.3); padding: 10px; border-radius: 4px; color: #93c5fd; font-size: 0.9rem; text-align: center;'>Calculated $L_{{idx}}$: <b>{li_val:.2f}</b><br><span style='font-size: 0.75rem; color: #6b7280;'>(Threshold: > 5.0 indicates high fill probability)</span></div>", unsafe_allow_html=True)
 
-    st.markdown("**3. Expected Value (EV) per Unit**")
-    st.latex(r'''
-    \mathbb{E}[X] = \left( \text{Spread} \times P(\text{Fill}) \right) - \left( \text{Loss} \times P(\text{Stagnation}) \right)
-    ''')
+    st.markdown("<br>", unsafe_allow_html=True)
     ev_val = float(row['effective_spread']) * 0.82
-    st.success(f"Projected EV: **+{ev_val:,.2f} GP**")
-    
+    st.markdown(f"""
+    <div style="background: rgba(17, 24, 39, 0.8); border: 1px solid rgba(255, 255, 255, 0.1); padding: 15px; border-radius: 8px; text-align: center;">
+        <div style="font-size: 0.8rem; color: #9ca3af; text-transform: uppercase;">Expected Value (EV) per Unit</div>
+        <div style="font-size: 1.2rem; color: #f3f4f6; font-weight: 700; margin-top: 5px;">+ {ev_val:,.2f} GP</div>
+    </div>
+    """, unsafe_allow_html=True)
     st.caption("*Analytics generated via simulated Bayesian inference using 5-minute Grand Exchange telemetry snapshots.*")
 
 
@@ -359,9 +395,17 @@ def render_dashboard():
         st.markdown("<h3 style='font-size: 1.1rem; color: #9ca3af;'>Top Tier Prospects</h3>", unsafe_allow_html=True)
         
         if processed_df.height > 0:
-            pdf_recs = processed_df.head(3).to_pandas()
+            pdf_recs = processed_df.head(10).to_pandas()
             
-            cards_html = "<div style='display: flex; flex-direction: column; gap: 12px; margin-top: 10px;'>"
+            cards_html = """
+            <style>
+            .scroll-container::-webkit-scrollbar { width: 6px; }
+            .scroll-container::-webkit-scrollbar-track { background: rgba(17,24,39,0.5); border-radius: 4px; }
+            .scroll-container::-webkit-scrollbar-thumb { background: #3b82f6; border-radius: 4px; }
+            .scroll-container::-webkit-scrollbar-thumb:hover { background: #60a5fa; }
+            </style>
+            <div class='scroll-container' style='display: flex; flex-direction: column; gap: 12px; margin-top: 10px; max-height: 500px; overflow-y: auto; padding-right: 8px;'>
+            """
             for _, row in pdf_recs.iterrows():
                 tag_col = "#60a5fa" if not row['members'] else "#f59e0b"
                 tag_txt = "F2P" if not row['members'] else "MEM"
