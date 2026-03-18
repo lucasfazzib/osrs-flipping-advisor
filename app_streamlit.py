@@ -368,11 +368,15 @@ def render_dashboard():
                 pulse_class = ""
                 pulse_text = ""
                 if row['market_pulse'] == "SURGING":
-                    pulse_class = "pulse-hot"
-                    pulse_text = "🔥 SURGING VOL"
+                    if row['profit'] > 100000:
+                        pulse_class = "whale-alert pulse-hot"
+                        pulse_text = "🚨 WHALE ALERT!"
+                    else:
+                        pulse_class = "pulse-hot"
+                        pulse_text = "🔥 HOT ITEM!"
                 elif row['market_pulse'] == "FROZEN":
                     pulse_class = "pulse-cold"
-                    pulse_text = "❄️ ILLIQUID"
+                    pulse_text = "❄️ FROZEN ASSET"
                 
                 cards_html += f"""<div style='background-color: rgba(17, 24, 39, 0.75); backdrop-filter: blur(10px); padding: 18px; border-radius: 12px; border-left: 4px solid #3b82f6; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: space-between; transition: all 0.3s ease;'>
 <div style='display: flex; align-items: center;'>
