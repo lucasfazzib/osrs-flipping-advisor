@@ -397,15 +397,14 @@ def render_dashboard():
         if processed_df.height > 0:
             pdf_recs = processed_df.head(10).to_pandas()
             
-            cards_html = """
-            <style>
+            cards_html = """<style>
             .scroll-container::-webkit-scrollbar { width: 6px; }
             .scroll-container::-webkit-scrollbar-track { background: rgba(17,24,39,0.5); border-radius: 4px; }
             .scroll-container::-webkit-scrollbar-thumb { background: #3b82f6; border-radius: 4px; }
             .scroll-container::-webkit-scrollbar-thumb:hover { background: #60a5fa; }
             </style>
-            <div class='scroll-container' style='display: flex; flex-direction: column; gap: 12px; margin-top: 10px; max-height: 500px; overflow-y: auto; padding-right: 8px;'>
-            """
+            <div class='scroll-container' style='display: flex; flex-direction: column; gap: 12px; margin-top: 10px; max-height: 500px; overflow-y: auto; padding-right: 8px;'>"""
+            
             for _, row in pdf_recs.iterrows():
                 tag_col = "#60a5fa" if not row['members'] else "#f59e0b"
                 tag_txt = "F2P" if not row['members'] else "MEM"
