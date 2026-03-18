@@ -99,7 +99,7 @@ def main():
                 conn_str = supabase_url
                 ranked_df.write_database(
                     table_name="gold_margins",
-                    connection=conn_str,
+                    connection=conn_str.replace("postgresql://", "postgresql+psycopg2://"),
                     if_table_exists="replace"
                 )
                 logger.success("Supabase Data Warehouse Sink Complete!")
