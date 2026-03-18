@@ -1,88 +1,77 @@
-# üí∞ OSRS Quant Market Intelligence Platform
+# OSRS Flipping & Quantitative Engine ‚öîÔ∏èÌ≥à
 
-> **A professional-grade Market Analytics Engine & Quantitative Flipping Platform for Old School RuneScape (OSRS).**
+A fully automated, end-to-end Data Engineering and Quantitative Analysis pipeline for *Old School RuneScape*. This toolkit extracts real-time Grand Exchange pricing telemetry, applies financial liquidity filters to find profitable arbitrage opportunities ("Flipping"), and serves them via a modern Web Dashboard.
 
-Built with the **Modern Data Stack**, this platform mimics high-frequency trading (HFT) environments used in Wall Street, but for the Grand Exchange. It uses a **Medallion Architecture** (Bronze, Silver, Gold) to process real-time market data into actionable trading signals.
+## ÌøóÔ∏è Cloud-Native Architecture
 
----
+This project is designed to run 24/7 autonomously using a Modern Data Stack:
+1. **GitHub Actions (Cron Orchestrator):** Runs the ETL pipeline (`full_run.py`) every 5 minutes.
+2. **OSRS Wiki API (Data Lake Source):** Extracts thousands of mapping data and 5-minute timeseries volumes.
+3. **Polars & Python (Quant Engine):** Calculates effective spreads, subtracts the GE 1% Tax algorithmically, and generates Liquidity Scores.
+4. **Supabase / PostgreSQL (Data Warehouse):** Live syncs the filtered subset of highly liquid, profitable gold margins using `psycopg2`.
+5. **Streamlit Community Cloud (Frontend):** Renders the visual terminal, fetching data straight from the Supabase warehouse with 60-second TTL caching.
 
-## üõ† The Tech Stack (The "Rockstar" Toolkit)
-
-- **Language:** Python (Type-hinted, Staff Engineering standards)
-- **Engine:** [Polars](https://pola.rs/) ‚Äî A blazingly fast DataFrame library (Faster than Pandas).
-- **Database:** [DuckDB](https://duckdb.org/) ‚Äî The "SQLite for Analytics" (Zero-infrastructure OLAP).
-- **Storage:** [Apache Parquet](https://parquet.apache.org/) ‚Äî Columnar storage for efficient querying.
-- **Logging:** [Loguru](https://github.com/Delgan/loguru) ‚Äî Structured, production-ready logging.
-- **Validation:** [Pydantic](https://docs.pydantic.dev/) & [YAML](https://yaml.org/) ‚Äî Configuration management.
-
----
-
-## üèó High-Level Architecture (Explained for a 10-Year-Old)
-
-Imagine we are building a **Super-Spy Tool** to find the best deals in the RuneScape toy shop:
-
-1.  **ü•â Bronze (The Messy Room):** We run into the shop, take a photo of every price tag, and throw the photos into a box. We don't change anything. If we ever argue about a price, we check the photo!
-2.  **ü•à Silver (The Organizer):** We take the photos, write the names clearly on cards, and sort them by ID number. No more messy handwriting!
-3.  **ü•á Gold (The Brain):** Our robot looks at the cards and calculates: *"If I buy this sword for 10 coins and sell it for 20, but the King takes 1 coin in tax... how much candy can I buy?"* This is where the magic happens.
+## Ì∫Ä Live Demo
+Access the live intelligence terminal here: **[Insert Your Streamlit Link]**
 
 ---
 
-## üé® Interactive Intelligence Dashboard (Streamlit)
+## Ì≤ª Local Developer Setup
 
-The platform features a 2026-standard modern UI designed for both "Poor" and "Whale" players:
+If you want to fork this project, run the pipeline locally, or hook it to your own Supabase instance, follow these steps.
 
-- **Budget Optimizer:** Automatically filters items based on your current GP. It won't suggest a 'Scythe of Vitur' if you only have 10,000 GP!
-- **Liquidity Heatmaps:** Real-time Scatter plots showing the Risk (ROI) vs Reward (Liquidity).
-- **Capital Allocation:** An "Intelligence" engine that tells you EXACTLY how much of your budget to spend on which items to maximize your hour-by-hour profit.
+### 1. Prerequisites
+- Python 3.10+
+- A free Supabase account (or any local PostgreSQL instance)
 
----
-
-## üìä Market Definitions & Financial Logic
-
-As a **Staff Data Engineer**, the precision of your metrics matters. Here is how we define "Profit":
-
-| Metric | Business Definition | Mathematical Formula |
-| :--- | :--- | :--- |
-| **Raw Spread** | The gap between the current highest "Buy" and "Sell" price. | $High - Low$ |
-| **GE Tax** | The 1% fee taken by the Grand Exchange (introduced in 2021). | $\min(0.01 \times High, 5,000,000)$ |
-| **Effective Spread** | The actual profit you keep after the taxman takes his share. | $High - Tax - Low$ |
-| **ROI %** | Return on Investment. How much work your money is doing. | $(Effective Spread / Low) \times 100$ |
-| **Limit Profit** | The max profit possible if you buy a full 4-hour limit. | $Effective Spread \times BuyLimit$ |
-
----
-
-## üöÄ Getting Started
-
-### 1. Setup Your Badge (User-Agent)
-The OSRS Wiki API requires you to identify yourself. 
-1. Open the [`.env`](.env) file.
-2. Update `OSRS_USER_AGENT` to your contact info (e.g., `MyProject - @DiscordName`).
-
-### 2. Install the Engine
+### 2. Installation
+Clone the repo and configure your virtual environment:
 ```bash
+git clone https://github.com/lucasfazzib/osrs-flipping-advisor.git
+cd osrs-flipping-advisor
+
+python -m venv .venv
+source .venv/Scripts/activate  # On Unix use: source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 3. Run the Pipeline
-```bash
-# Ingest raw data (Bronze)
-python src/ingestion/extract_latest.py
+### 3. Environment Variables
+Create a file named `.env` in the root folder and add the following keys. The User-Agent is mandatory per the OSRS Wiki API guidelines.
+```env
+OSRS_USER_AGENT=OSRS Quant Platform - @YourDiscordOrGithubHandle
+LOG_LEVEL=INFO
+PYTHONPATH=./src
 
-# Clean and normalize (Silver)
-python src/transformation/bronze_to_silver.py
-
-# Calculate Market Opportunities (Gold)
-python src/transformation/silver_to_gold.py
+# Supabase (or any PostgreSQL instance) Connection String
+SUPABASE_URL=postgresql://postgres.your_project_id:your_password@aws-1-us-east-1.pooler.supabase.com:6543/postgres?sslmode=require
 ```
 
+### 4. Running the Pipeline (Backend)
+To manually execute the ingestion and algorithmic processes, run the full pipeline loop. This will fetch API data, calculate metrics, and push the final `gold_margins` to your database.
+```bash
+python full_run.py
+```
+
+### 5. Running the Terminal (Frontend)
+To see the results in your local browser, fire up Streamlit:
+```bash
+streamlit run app_streamlit.py
+```
+This will open `localhost:8501` featuring your localized data matrix.
+
 ---
 
+## ‚öôÔ∏è Modifying Trading Parameters
+You can adjust the boundaries of what the engine considers "profitable" or "liquid" by modifying `configs/settings.yaml`.
+```yaml
+quant:
+  tax_rate: 0.01          # Standard Grand Exchange Tax (1%)
+  tax_cap: 5000000        # GE Tax cap rules
+  min_liquidity: 1000000  # Minimum 1,000,000 GP moved in the last 5 minutes to be listed
+  min_spread_pct: 0.01    # Minimum required clean profit margin (1%)
+```
 
-- **Idempotency:** Every ingestion is timestamped. We can "rewind" time and re-process any day in history.
-- **Decoupling:** The API client doesn't care about the Database. The Database doesn't care about the API. We can swap DuckDB for Snowflake in 10 minutes.
-- **Columnar Performance:** By using Parquet, we can scan 1 million rows of price data in the time it takes you to blink.
-- **Error Resilience:** Real-world APIs fail. Our `WikiAPIClient` uses **Exponential Backoff** to retry requests if the server is busy.
+## ‚ö†Ô∏è Disclaimer
+This tool executes read-only operations. It does NOT interact with the local Runescape client, does not bot, and does not break Jagex ToS. 
+Trading on the Grand Exchange involves risk, and this tool merely highlights mathematical arbitrage opportunities based on historical cache snapshots.
 
----
-
-*This is an open-source project designed for educational and quantitative analysis purposes. Happy flipping!*
