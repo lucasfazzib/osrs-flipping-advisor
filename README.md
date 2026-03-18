@@ -1,8 +1,8 @@
-# OSRS Flipping & Quantitative Engine ‚öîÔ∏è
+# OSRS Flipping & Quantitative Engine ‚öîÔ∏èÌ≥à
 
 A fully automated, end-to-end Data Engineering and Quantitative Analysis pipeline for *Old School RuneScape*. This toolkit extracts real-time Grand Exchange pricing telemetry, applies financial liquidity filters to find profitable arbitrage opportunities ("Flipping"), and serves them via a modern Web Dashboard.
 
-##  Cloud-Native Architecture
+## ÌøóÔ∏è Cloud-Native Architecture
 
 This project is designed to run 24/7 autonomously using a Modern Data Stack:
 1. **GitHub Actions (Cron Orchestrator):** Runs the ETL pipeline (`full_run.py`) every 5 minutes.
@@ -11,12 +11,12 @@ This project is designed to run 24/7 autonomously using a Modern Data Stack:
 4. **Supabase / PostgreSQL (Data Warehouse):** Live syncs the filtered subset of highly liquid, profitable gold margins using `psycopg2`.
 5. **Streamlit Community Cloud (Frontend):** Renders the visual terminal, fetching data straight from the Supabase warehouse with 60-second TTL caching.
 
-##  Live Demo
+## Ì∫Ä Live Demo
 Access the live intelligence terminal here: **[Insert Your Streamlit Link]**
 
 ---
 
-##  Local Developer Setup
+## Ì≤ª Local Developer Setup
 
 If you want to fork this project, run the pipeline locally, or hook it to your own Supabase instance, follow these steps.
 
@@ -31,7 +31,7 @@ git clone https://github.com/lucasfazzib/osrs-flipping-advisor.git
 cd osrs-flipping-advisor
 
 python -m venv .venv
-source .venv/Scripts/activate  # On Unix use: source .venv/bin/activate
+source .venv/Scripts/activate  # On Unix use: .venv/bin/activate
 pip install -r requirements.txt
 ```
 
