@@ -5,13 +5,16 @@ A fully automated, end-to-end Data Engineering and Quantitative Analysis pipelin
 ## 📸 Interface Screenshots
 
 ### Welcome & Strategy Page
-![Welcome Page](tests/welcome_page.png)
+![Welcome Page](tests/welcome_page_v2.png)
 
 ### Market Intelligence & Treasure Map
-![Dashboard 1](tests/dashbaord1.png)
+![Dashboard 1](tests/dashboard1v2.png)
 
 ### Quantitative Flipping Datagrid & Execution Protocol
-![Dashboard 2](tests/dashboard2.png)
+![Dashboard 2](tests/dashboard2v2.png)
+
+### Advanced Terminal / Execution Protocol
+![Dashboard 3](tests/dashboard3v2.png)
 
 ## 📊 The Quant Execution Terminal
 
