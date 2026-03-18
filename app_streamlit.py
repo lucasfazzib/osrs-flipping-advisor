@@ -355,21 +355,19 @@ def render_dashboard():
             for _, row in pdf_recs.iterrows():
                 tag_col = "#60a5fa" if not row['members'] else "#f59e0b"
                 tag_txt = "F2P" if not row['members'] else "MEM"
-                cards_html += f"""
-                <div style='background-color: rgba(17, 24, 39, 0.75); backdrop-filter: blur(10px); padding: 18px; border-radius: 12px; border-left: 4px solid #3b82f6; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: space-between; transition: all 0.3s ease;'>
-                    <div style='display: flex; align-items: center;'>
-                        <img src="{row['icon_url']}" style='width: 36px; height: 36px; object-fit: contain; margin-right: 15px;' />
-                        <div style='display: flex; flex-direction: column;'>
-                            <span style='font-size: 1.05rem; font-weight: 700; color: #f3f4f6; letter-spacing: 0.5px;'>{row['name']}</span>
-                            <span style='font-size: 0.75rem; color: {tag_col}; font-weight: 700; text-transform: uppercase;'>{tag_txt} MARKET</span>
-                        </div>
-                    </div>
-                    <div style='display: flex; flex-direction: column; align-items: flex-end;'>
-                        <span style='font-size: 0.75rem; color: #9ca3af; text-transform: uppercase;'>Proj. Yield</span>
-                        <span style='font-size: 1.15rem; font-weight: 800; color: #10b981;'>+{row['profit']:,.0f}</span>
-                    </div>
-                </div>
-                """
+                cards_html += f"""<div style='background-color: rgba(17, 24, 39, 0.75); backdrop-filter: blur(10px); padding: 18px; border-radius: 12px; border-left: 4px solid #3b82f6; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: space-between; transition: all 0.3s ease;'>
+<div style='display: flex; align-items: center;'>
+<img src="{row['icon_url']}" style='width: 36px; height: 36px; object-fit: contain; margin-right: 15px;' />
+<div style='display: flex; flex-direction: column;'>
+<span style='font-size: 1.05rem; font-weight: 700; color: #f3f4f6; letter-spacing: 0.5px;'>{row['name']}</span>
+<span style='font-size: 0.75rem; color: {tag_col}; font-weight: 700; text-transform: uppercase;'>{tag_txt} MARKET</span>
+</div>
+</div>
+<div style='display: flex; flex-direction: column; align-items: flex-end;'>
+<span style='font-size: 0.75rem; color: #9ca3af; text-transform: uppercase;'>Proj. Yield</span>
+<span style='font-size: 1.15rem; font-weight: 800; color: #10b981;'>+{row['profit']:,.0f}</span>
+</div>
+</div>"""
             cards_html += "</div>"
             st.markdown(cards_html, unsafe_allow_html=True)
             
