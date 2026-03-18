@@ -219,11 +219,21 @@ def render_home_page():
     st.info("DATA UPDATE FREQUENCY: Market data is updated automatically every 5 minutes to capture real-time trends from the Grand Exchange.")
 
 import math
-@st.dialog("Quantitative Analytics Model")
-def show_quant_analytics(row):
-    st.markdown(f"### 📊 Asset: {row['name']}")
+@st.dialog("Execution Protocol & Analytics", width="large")
+def show_execution_protocol(selected_item):
+    st.markdown(f"## {selected_item['name']} - Execution Protocol")
+    st.success(
+        f"**1. BUY ORDER:** Place limit order to buy **{selected_item['qty']:,.0f}x** at **{selected_item['low']:,.0f} GP** each.  \n"
+        f"**2. ALLOCATION:** Total capital securely required is **{(selected_item['qty'] * selected_item['low']):,.0f} GP**.  \n"
+        f"**3. SELL ORDER:** Immediately upon fill, sell asset bag at **{selected_item['high']:,.0f} GP** each.  \n\n"
+        f"**🏆 PROJECTED POST-TAX YIELD:** +{selected_item['profit']:,.0f} GP"
+    )
     
-    st.markdown("**1. Algorithmic Arbitrage Profile**")
+    st.markdown("---")
+    show_quant_analytics_inner(selected_item)
+
+def show_quant_analytics_inner(row):
+    st.markdown("### 📊 Algorithmic Profile")
     st.latex(r'''
     \text{Effective Spread} = \left\lfloor Bid \times (1 - \tau) \right\rfloor - Ask
     ''')
@@ -355,12 +365,21 @@ def render_dashboard():
             for _, row in pdf_recs.iterrows():
                 tag_col = "#60a5fa" if not row['members'] else "#f59e0b"
                 tag_txt = "F2P" if not row['members'] else "MEM"
+                pulse_class = ""
+                pulse_text = ""
+                if row['market_pulse'] == "SURGING":
+                    pulse_class = "pulse-hot"
+                    pulse_text = "🔥 SURGING VOL"
+                elif row['market_pulse'] == "FROZEN":
+                    pulse_class = "pulse-cold"
+                    pulse_text = "❄️ ILLIQUID"
+                
                 cards_html += f"""<div style='background-color: rgba(17, 24, 39, 0.75); backdrop-filter: blur(10px); padding: 18px; border-radius: 12px; border-left: 4px solid #3b82f6; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: space-between; transition: all 0.3s ease;'>
 <div style='display: flex; align-items: center;'>
 <img src="{row['icon_url']}" style='width: 36px; height: 36px; object-fit: contain; margin-right: 15px;' />
 <div style='display: flex; flex-direction: column;'>
 <span style='font-size: 1.05rem; font-weight: 700; color: #f3f4f6; letter-spacing: 0.5px;'>{row['name']}</span>
-<span style='font-size: 0.75rem; color: {tag_col}; font-weight: 700; text-transform: uppercase;'>{tag_txt} MARKET</span>
+<span style='font-size: 0.75rem; color: {tag_col}; font-weight: 700; text-transform: uppercase;'>{tag_txt} MARKET • <span class="{pulse_class}">{pulse_text}</span></span>
 </div>
 </div>
 <div style='display: flex; flex-direction: column; align-items: flex-end;'>
@@ -406,20 +425,7 @@ def render_dashboard():
             selected_idx = event.selection.rows[0]
             selected_item = processed_df.to_pandas().iloc[selected_idx]
             
-            # Format the call to action
-            exec_col1, exec_col2 = st.columns([3, 1])
-            with exec_col1:
-                st.success(
-                    f"### EXECUTION PROTOCOL\n"
-                    f"1. Place Limit Order to **BUY {selected_item['qty']:,.0f}x '{selected_item['name']}'** at **{selected_item['low']:,.0f} GP** each.\n"
-                    f"2. Total Capital Required: **{(selected_item['qty'] * selected_item['low']):,.0f} GP**.\n"
-                    f"3. Upon fill, place Order to **SELL** liquid asset for **{selected_item['high']:,.0f} GP**.\n\n"
-                    f"**PROJECTED NET YIELD (Post-Tax): +{selected_item['profit']:,.0f} GP**."
-                )
-            with exec_col2:
-                st.markdown("<div style='height: 35%'></div>", unsafe_allow_html=True) # Spacer
-                if st.button("📊 Open Advanced Analytics", use_container_width=True, type="primary"):
-                    show_quant_analytics(selected_item)
+            show_execution_protocol(selected_item)
 
 def main():
     # Moved navigation out of the sidebar for better mobile UX
