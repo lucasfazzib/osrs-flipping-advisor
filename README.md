@@ -12,7 +12,7 @@ This project is designed to run 24/7 autonomously using a Modern Data Stack:
 5. **Streamlit Community Cloud (Frontend):** Renders the visual terminal, fetching data straight from the Supabase warehouse with 60-second TTL caching.
 
 ##  Live Demo
-Access the live intelligence terminal here: **[Insert Your Streamlit Link]**
+Access the live intelligence terminal here: **[https://osrs-flipping-advisor.streamlit.app/]**
 
 ---
 
