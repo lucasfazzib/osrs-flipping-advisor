@@ -368,6 +368,7 @@ def render_dashboard():
             },
             on_select="rerun",
             selection_mode="single-row"
+        )
         
         
         # Interactive interaction reading the selected row
