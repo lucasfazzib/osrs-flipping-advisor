@@ -1,0 +1,23 @@
+api:
+  # MANDATORY: wiki.runescape.com/w/RuneScape:Real-time_Prices_API
+  # Set User-Agent in .env as OSRS_USER_AGENT
+  base_url: "https://prices.runescape.wiki/api/v1/osrs/"
+  endpoints:
+    latest: "latest"
+    mapping: "mapping"
+    timeseries: "5m"
+  timeout: 15
+  max_retries: 3
+  retry_delay: 2
+
+storage:
+  db_path: "data/warehouse.db"
+  bronze_path: "data/bronze"
+  silver_path: "data/silver"
+  gold_path: "data/gold"
+
+quant:
+  tax_rate: 0.01
+  tax_cap: 5000000
+  min_liquidity: 1000000 # 1M GP/5min
+  min_spread_pct: 0.01   # 1%
