@@ -135,10 +135,8 @@ def load_market_intelligence():
         
     if supabase_url:
         try:
-            return pl.read_database_uri(
-                query="SELECT * FROM gold_margins ORDER BY liquidity_score DESC",
-                uri=supabase_url
-            )
+            return pl.from_pandas(pd.read_sql("SELECT * FROM gold_margins ORDER BY liquidity_score DESC", supabase_url))
+            
         except Exception as e:
             st.error(f"Failed connecting to Data Warehouse: {e}")
             return None
@@ -370,7 +368,7 @@ def render_dashboard():
             },
             on_select="rerun",
             selection_mode="single-row"
-        )
+        
         
         # Interactive interaction reading the selected row
         if len(event.selection.rows) > 0:
