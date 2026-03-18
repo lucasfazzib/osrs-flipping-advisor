@@ -359,10 +359,12 @@ def render_dashboard():
             (pl.min_horizontal([pl.col("limit"), (budget / pl.col("low")).floor()])).alias("qty")
         ]).with_columns([
             (pl.col("qty") * pl.col("effective_spread")).alias("profit"),
-            ("https://chisel.weirdgloop.org/static/img/osrs-sprite/" + pl.col("id").cast(pl.String) + ".png").alias("icon_url"),
-            pl.when(pl.col("last_5m_volume") > 5000).then(pl.lit("SURGING"))
-              .when(pl.col("last_5m_volume") < 30).then(pl.lit("FROZEN"))
-              .otherwise(pl.lit("NORMAL")).alias("market_pulse")
+            ("https://chisel.weirdgloop.org/static/img/osrs-sprite/" + pl.col("id").cast(pl.String) + ".png").alias("icon_url")
+        ]).with_columns([
+            pl.when((pl.col("last_5m_volume") > 5000) & (pl.col("profit") > 100000)).then(pl.lit("🚨 WHALE ALERT"))
+              .when(pl.col("last_5m_volume") > 5000).then(pl.lit("🔥 HOT ITEM"))
+              .when(pl.col("last_5m_volume") < 30).then(pl.lit("❄️ FROZEN"))
+              .otherwise(pl.lit("✅ NORMAL")).alias("market_pulse")
         ]).sort("profit", descending=True)
 
     # --- KPI DASHBOARD ---
@@ -404,14 +406,13 @@ def render_dashboard():
                 tag_txt = "F2P" if not row['members'] else "MEM"
                 pulse_class = ""
                 pulse_text = ""
-                if row['market_pulse'] == "SURGING":
-                    if row['profit'] > 100000:
-                        pulse_class = "whale-alert pulse-hot"
-                        pulse_text = "🚨 WHALE ALERT!"
-                    else:
-                        pulse_class = "pulse-hot"
-                        pulse_text = "🔥 HOT ITEM!"
-                elif row['market_pulse'] == "FROZEN":
+                if row['market_pulse'] == "🚨 WHALE ALERT":
+                    pulse_class = "whale-alert pulse-hot"
+                    pulse_text = "🚨 WHALE ALERT!"
+                elif row['market_pulse'] == "🔥 HOT ITEM":
+                    pulse_class = "pulse-hot"
+                    pulse_text = "🔥 HOT ITEM!"
+                elif row['market_pulse'] == "❄️ FROZEN":
                     pulse_class = "pulse-cold"
                     pulse_text = "❄️ FROZEN ASSET"
                 
