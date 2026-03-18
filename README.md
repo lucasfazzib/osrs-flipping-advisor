@@ -49,12 +49,12 @@ pip install -r requirements.txt
 ### 3. Environment Variables
 Create a file named `.env` in the root folder and add the following keys. The User-Agent is mandatory per the OSRS Wiki API guidelines.
 ```env
-OSRS_USER_AGENT=OSRS Quant Platform - @YourDiscordOrGithubHandle
+OSRS_USER_AGENT=OSRS Quant Platform - Github: @yourgithub
 LOG_LEVEL=INFO
 PYTHONPATH=./src
 
 # Supabase (or any PostgreSQL instance) Connection String
-SUPABASE_URL=postgresql://postgres.your_project_id:your_password@aws-1-us-east-1.pooler.supabase.com:6543/postgres?sslmode=require
+SUPABASE_URL=postgresql://postgres.your_project_id:your_password......
 ```
 
 ### 4. Running the Pipeline (Backend)
@@ -69,6 +69,31 @@ To see the results in your local browser, fire up Streamlit:
 streamlit run app_streamlit.py
 ```
 This will open `localhost:8501` featuring your localized data matrix.
+
+---
+
+## 🌐 OSRS Wiki API & Authentication
+
+Unlike traditional corporate APIs (like AWS or Stripe) which require you to register an account and generate a secret `API_KEY` to authenticate, the **OSRS Wiki API is 100% open and public**.
+
+However, to protect their community-funded servers from DDoS attacks or runaway data-scraping loops, the Wiki administrators enforce a strict "Identification via `User-Agent`" policy.
+
+**How it works:**
+Every HTTP request made by this application must include a custom header called `User-Agent`. This header acts as your "nametag" on the internet. 
+
+Instead of a secret password, you simply provide a descriptive name and a contact method (like your Discord handle or GitHub profile). If you accidentally create a script that spams their servers, they will message you using this contact info before blocking your IP.
+
+**Example Implementation inside our code:**
+```python
+import os
+import requests
+
+headers = {
+    'User-Agent': os.getenv('OSRS_USER_AGENT') # e.g. "OSRS Quant Platform - Github: @lucasfazzib"
+}
+response = requests.get('https://prices.runescape.wiki/api/v1/osrs/latest', headers=headers)
+```
+*Note: Failing to provide a descriptive User-Agent will result in an immediate `403 Forbidden` block from Cloudflare/OSRS Wiki.*
 
 ---
 
