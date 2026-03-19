@@ -234,21 +234,43 @@ def show_execution_protocol(selected_item):
     
     st.markdown("<h4 style='color: #9ca3af; font-size: 1rem; margin-bottom: 15px;'>1. Trade Execution Protocol</h4>", unsafe_allow_html=True)
     
+    # Smart +1/-1 Engine
+    optimal_buy = selected_item['low'] + 1
+    optimal_sell = selected_item['high'] - 1
+    
+    # Calculate estimated fill time
+    vol_per_min = selected_item['last_5m_volume'] / 5
+    if vol_per_min > 0:
+        est_minutes = selected_item['qty'] / vol_per_min
+    else:
+        est_minutes = 999
+        
+    if est_minutes < 1:
+        speed_msg = "⚡ Instant Fill (Under 1m)"
+    elif est_minutes <= 15:
+        speed_msg = f"⏳ Fast (~{math.ceil(est_minutes)}m)"
+    elif est_minutes <= 60:
+        speed_msg = f"🐢 Moderate (~{math.ceil(est_minutes)}m)"
+    else:
+        speed_msg = f"🐌 Very Slow (~{math.ceil(est_minutes/60)}h)"
+
     c1, c2, c3 = st.columns(3)
     with c1:
         st.markdown(f"""
         <div style="background: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.2); border-top: 3px solid #10b981; padding: 15px; border-radius: 6px; height: 100%;">
             <div style="font-size: 0.75rem; color: #9ca3af; text-transform: uppercase; font-weight: 600;">Step 1: Open Position</div>
             <div style="font-size: 1.3rem; font-weight: 800; color: #f3f4f6; margin-top: 8px;">BUY {selected_item['qty']:,.0f}x</div>
-            <div style="font-size: 0.9rem; color: #d1d5db; margin-top: 5px;">@ <span style="color: #10b981; font-weight:700;">{selected_item['low']:,.0f} GP</span></div>
+            <div style="font-size: 0.8rem; color: #9ca3af; margin-top: 5px;">Base: {selected_item['low']:,.0f} GP</div>
+            <div style="font-size: 0.9rem; color: #10b981; font-weight: 700; margin-top: 2px;">⚡ Pro-Fill: {optimal_buy:,.0f} GP</div>
         </div>
         """, unsafe_allow_html=True)
     with c2:
         st.markdown(f"""
         <div style="background: rgba(59, 130, 246, 0.05); border: 1px solid rgba(59, 130, 246, 0.2); border-top: 3px solid #3b82f6; padding: 15px; border-radius: 6px; height: 100%;">
             <div style="font-size: 0.75rem; color: #9ca3af; text-transform: uppercase; font-weight: 600;">Step 2: Capital Lock</div>
-            <div style="font-size: 1.3rem; font-weight: 800; color: #f3f4f6; margin-top: 8px;">{selected_item['qty'] * selected_item['low']:,.0f} GP</div>
-            <div style="font-size: 0.9rem; color: #8b92a5; margin-top: 5px;">Total Escrow Required</div>
+            <div style="font-size: 1.3rem; font-weight: 800; color: #f3f4f6; margin-top: 8px;">{selected_item['qty'] * optimal_buy:,.0f} GP</div>
+            <div style="font-size: 0.8rem; color: #8b92a5; margin-top: 5px;">Total Escrow Required</div>
+            <div style="font-size: 0.8rem; color: #93c5fd; margin-top: 2px; font-weight: 600;">{speed_msg}</div>
         </div>
         """, unsafe_allow_html=True)
     with c3:
@@ -256,14 +278,15 @@ def show_execution_protocol(selected_item):
         <div style="background: rgba(245, 158, 11, 0.05); border: 1px solid rgba(245, 158, 11, 0.2); border-top: 3px solid #f59e0b; padding: 15px; border-radius: 6px; height: 100%;">
             <div style="font-size: 0.75rem; color: #9ca3af; text-transform: uppercase; font-weight: 600;">Step 3: Close Position</div>
             <div style="font-size: 1.3rem; font-weight: 800; color: #f3f4f6; margin-top: 8px;">SELL ALL</div>
-            <div style="font-size: 0.9rem; color: #d1d5db; margin-top: 5px;">@ <span style="color: #f59e0b; font-weight:700;">{selected_item['high']:,.0f} GP</span></div>
+            <div style="font-size: 0.8rem; color: #9ca3af; margin-top: 5px;">Base: {selected_item['high']:,.0f} GP</div>
+            <div style="font-size: 0.9rem; color: #f59e0b; font-weight: 700; margin-top: 2px;">⚡ Pro-Fill: {optimal_sell:,.0f} GP</div>
         </div>
         """, unsafe_allow_html=True)
         
     st.markdown(f"""
     <div style="margin-top: 25px; margin-bottom: 30px; background: linear-gradient(90deg, rgba(16, 185, 129, 0.15) 0%, rgba(17, 24, 39, 0) 100%); border-left: 4px solid #10b981; padding: 20px; border-radius: 0 8px 8px 0;">
-        <span style="font-size: 0.85rem; color: #9ca3af; text-transform: uppercase; font-weight: 600; letter-spacing: 1px;">Projected Post-Tax Yield</span><br>
-        <span style="font-size: 2.2rem; font-weight: 800; color: #10b981; text-shadow: 0 0 15px rgba(16, 185, 129, 0.2); margin-top: 5px; display: inline-block;">+{selected_item['profit']:,.0f} GP</span>
+        <span style="font-size: 0.85rem; color: #9ca3af; text-transform: uppercase; font-weight: 600; letter-spacing: 1px;">Projected Post-Tax Yield (Pro-Fill)</span><br>
+        <span style="font-size: 2.2rem; font-weight: 800; color: #10b981; text-shadow: 0 0 15px rgba(16, 185, 129, 0.2); margin-top: 5px; display: inline-block;">+{math.floor(optimal_sell * 0.98) * selected_item['qty'] - (optimal_buy * selected_item['qty']):,.0f} GP</span>
     </div>
     """, unsafe_allow_html=True)
     
