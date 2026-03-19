@@ -6,6 +6,7 @@ api:
     latest: "latest"
     mapping: "mapping"
     timeseries: "5m"
+    hourly: "1h"
   timeout: 15
   max_retries: 3
   retry_delay: 2

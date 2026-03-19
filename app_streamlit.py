@@ -221,16 +221,29 @@ def render_home_page():
 import math
 @st.dialog("Terminal / Execution Protocol", width="large")
 def show_execution_protocol(selected_item):
+    # Determine trend color
+    trend = selected_item.get('market_trend', '➡️ Stable')
+    trend_color = "#ef4444" if "Downtrend" in trend else ("#10b981" if "Uptrend" in trend else "#f59e0b")
+
     # Top banner HTML
     st.markdown(f"""
-    <div style="display: flex; align-items: center; border-bottom: 1px solid #1f2937; padding-bottom: 20px; margin-bottom: 25px;">
-        <img src="{selected_item['icon_url']}" style="width: 56px; height: 56px; margin-right: 20px; filter: drop-shadow(0px 4px 6px rgba(0,0,0,0.5));" />
-        <div style="display: flex; flex-direction: column;">
-            <h2 style="margin: 0; padding: 0; color: #f3f4f6; font-size: 1.8rem; letter-spacing: 0.5px;">{selected_item['name']}</h2>
-            <span style="color: #10b981; font-weight: 700; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1.5px; margin-top: 4px;">Alpha Signal Confirmed</span>
+    <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #1f2937; padding-bottom: 20px; margin-bottom: 25px;">
+        <div style="display: flex; align-items: center;">
+            <img src="{selected_item['icon_url']}" style="width: 56px; height: 56px; margin-right: 20px; filter: drop-shadow(0px 4px 6px rgba(0,0,0,0.5));" />
+            <div style="display: flex; flex-direction: column;">
+                <h2 style="margin: 0; padding: 0; color: #f3f4f6; font-size: 1.8rem; letter-spacing: 0.5px;">{selected_item['name']}</h2>
+                <span style="color: #10b981; font-weight: 700; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1.5px; margin-top: 4px;">Alpha Signal Confirmed</span>
+            </div>
+        </div>
+        <div style="background: rgba(0,0,0,0.3); padding: 10px 15px; border-radius: 8px; border: 1px solid {trend_color}; text-align: center;">
+            <div style="font-size: 0.7rem; color: #9ca3af; text-transform: uppercase; margin-bottom: 3px;">Market Trend (1h)</div>
+            <div style="font-size: 1.2rem; font-weight: 800; color: {trend_color};">{trend}</div>
         </div>
     </div>
     """, unsafe_allow_html=True)
+
+    if "Downtrend" in trend:
+        st.warning("📉 **WARNING:** This item is in a Downtrend (current price is lower than the 1h average). Wait before buying, as your order might instantly profit but the sell price could crash.")
     
     st.markdown("<h4 style='color: #9ca3af; font-size: 1rem; margin-bottom: 15px;'>1. Trade Execution Protocol</h4>", unsafe_allow_html=True)
     
@@ -238,13 +251,15 @@ def show_execution_protocol(selected_item):
     optimal_buy = selected_item['low'] + 1
     optimal_sell = selected_item['high'] - 1
     
-    # Calculate estimated fill time
-    vol_per_min = selected_item['last_5m_volume'] / 5
+    # Time-series smoothed estimated fill time using hourly data to prevent "fake" 5m spikes
+    hourly_vol = selected_item.get('hourly_highPriceVolume', 0) + selected_item.get('hourly_lowPriceVolume', 0)
+    vol_per_min = (hourly_vol / 60) if hourly_vol > 0 else (selected_item['last_5m_volume'] / 5)
+    
     if vol_per_min > 0:
         est_minutes = selected_item['qty'] / vol_per_min
     else:
         est_minutes = 999
-        
+
     if est_minutes < 1:
         speed_msg = "⚡ Instant Fill (Under 1m)"
     elif est_minutes <= 15:
@@ -286,7 +301,7 @@ def show_execution_protocol(selected_item):
     st.markdown(f"""
     <div style="margin-top: 25px; margin-bottom: 30px; background: linear-gradient(90deg, rgba(16, 185, 129, 0.15) 0%, rgba(17, 24, 39, 0) 100%); border-left: 4px solid #10b981; padding: 20px; border-radius: 0 8px 8px 0;">
         <span style="font-size: 0.85rem; color: #9ca3af; text-transform: uppercase; font-weight: 600; letter-spacing: 1px;">Projected Post-Tax Yield (Pro-Fill)</span><br>
-        <span style="font-size: 2.2rem; font-weight: 800; color: #10b981; text-shadow: 0 0 15px rgba(16, 185, 129, 0.2); margin-top: 5px; display: inline-block;">+{math.floor(optimal_sell * 0.98) * selected_item['qty'] - (optimal_buy * selected_item['qty']):,.0f} GP</span>
+        <span style="font-size: 2.2rem; font-weight: 800; color: #10b981; text-shadow: 0 0 15px rgba(16, 185, 129, 0.2); margin-top: 5px; display: inline-block;">+{((optimal_sell - math.floor(optimal_sell * 0.02)) * selected_item['qty']) - (optimal_buy * selected_item['qty']):,.0f} GP</span>
     </div>
     """, unsafe_allow_html=True)
     
@@ -297,8 +312,8 @@ def show_quant_analytics_inner(row):
     q1, q2 = st.columns(2)
     with q1:
         st.markdown("<div style='font-size: 0.85rem; color: #f3f4f6; font-weight: 600; margin-bottom: 10px;'>A. Spread Analysis</div>", unsafe_allow_html=True)
-        st.latex(r'\text{Eff Spread} = \left\lfloor Bid \times 0.98 \right\rfloor - Ask')
-        st.latex(f"({row['high']:,.0f} \\times 0.98) - {row['low']:,.0f} = {row['effective_spread']:,.0f} \\text{{ GP}}")
+        st.latex(r'\text{Eff Spread} = Bid - \lfloor Bid \times 0.02 \rfloor - Ask')
+        st.latex(f"{row['high']:,.0f} - \\lfloor {row['high']:,.0f} \\times 0.02 \\rfloor - {row['low']:,.0f} = {row['effective_spread']:,.0f} \\text{{ GP}}")
     with q2:
         try:
             li_val = math.log(max(row.get('last_5m_gp_flow', 0), 1) + 1) * 1.5
@@ -473,12 +488,13 @@ def render_dashboard():
     if processed_df.height > 0:
         event = st.dataframe(
             processed_df.to_pandas()[[
-                'icon_url', 'market_pulse', 'name', 'low', 'high', 'effective_spread', 'roi_pct', 'qty', 'profit', 'last_5m_volume' 
-            ]], 
-            use_container_width=True, 
+                'icon_url', 'market_trend', 'market_pulse', 'name', 'low', 'high', 'effective_spread', 'roi_pct', 'qty', 'profit', 'last_5m_volume'
+            ]],
+            use_container_width=True,
             hide_index=True,
             column_config={
                 'icon_url': st.column_config.ImageColumn('Icon'),
+                'market_trend': st.column_config.TextColumn('Trend', help="Comparing 5m vs 1h Average Prices"),
                 'market_pulse': st.column_config.TextColumn('Pulse'),
                 'name': 'Item Name',
                 'low': st.column_config.NumberColumn('Buy At (Ask)', format="%d GP"),

@@ -62,13 +62,35 @@ def main():
         logger.info("Fetching 5m Volume Data for Liquidity Analysis")
         raw_5m = client.fetch(config["api"]["endpoints"]["timeseries"])
         
+        # 1.5 Fetch 1h Data (Trend Analysis & Risk Prediction)
+        logger.info("Fetching 1h Data for Trend Analysis")
+        raw_1h = client.fetch(config["api"].get("endpoints", {}).get("hourly", "1h"))
+
         # 2. Transform 5m to Silver-ish Polars DF
         data_5m = [{"id": int(k), **v} for k, v in raw_5m.get("data", {}).items()]
         df_5m = pl.DataFrame(data_5m)
-        
-        # 3. Calculate Liquidity Metrics
-        logger.info("Calculating Volume Velocity and GP Flow")
+
+        # 2.5 Transform 1h Data
+        data_1h = [{"id": int(k), "hourly_avgHighPrice": v.get("avgHighPrice", 0), "hourly_avgLowPrice": v.get("avgLowPrice", 0), "hourly_highPriceVolume": v.get("highPriceVolume", 0), "hourly_lowPriceVolume": v.get("lowPriceVolume", 0)} for k, v in raw_1h.get("data", {}).items()]
+        df_1h = pl.DataFrame(data_1h)
+
+        # Join 1h into 5m
+        df_5m = df_5m.join(df_1h, on="id", how="left")
+
+        # 3. Calculate Liquidity Metrics & Trends
+        logger.info("Calculating Volume Velocity, GP Flow, and Market Trends")
         df_liquidity = calculate_volume_velocity(df_5m)
+        
+        # Extract Market Trend logic directly here for df_5m before dropping columns
+        df_5m = df_5m.with_columns([
+            pl.when(pl.col("avgHighPrice") > pl.col("hourly_avgHighPrice") * 1.01).then(pl.lit("📈 Uptrend"))
+              .when(pl.col("avgHighPrice") < pl.col("hourly_avgHighPrice") * 0.99).then(pl.lit("📉 Downtrend"))
+              .otherwise(pl.lit("➡️ Stable")).alias("market_trend")
+        ])
+        
+        # Merge trend back to df_liquidity
+        df_trend = df_5m.select(["id", "market_trend", "hourly_highPriceVolume", "hourly_lowPriceVolume"])
+        df_liquidity = df_liquidity.join(df_trend, on="id", how="left")
         
         # 4. Load existing Gold Opportunities
         df_gold = pl.read_parquet(gold_root / "market_opportunities.parquet")
