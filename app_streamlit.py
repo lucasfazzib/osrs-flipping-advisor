@@ -345,7 +345,7 @@ def render_dashboard():
 
     # --- CONTROL PANEL (EXPANDER INSTEAD OF SIDEBAR) ---
     # Moved to an expander so mobile users can easily access it without opening a hidden sidebar
-    with st.expander("Execution Parameters (Filters & Setup)", expanded=False):
+    with st.expander("Execution Parameters (Filters & Setup)", expanded=True):
         sys_col1, sys_col2, sys_col3 = st.columns(3)
         with sys_col1:
             market_type = st.selectbox("Market Segment", ["Global Index", "Free-to-Play Only", "Members Only"])
