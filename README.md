@@ -42,7 +42,15 @@ Access the live intelligence terminal here: **[https://osrs-flipping-advisor.str
 
 ---
 
-## 💻 Local Developer Setup
+## � Documentation & Trading Strategy
+
+Wondering why your orders are not instantly filling? Curious about how to beat out other flippers using the "+1/-1 GP" strategy? 
+**Read our comprehensive flipping mechanics manual here:**
+👉 **[TRADING_GUIDE.md](docs/TRADING_GUIDE.md)**
+
+---
+
+## �💻 Local Developer Setup
 
 If you want to fork this project, run the pipeline locally, or hook it to your own Supabase instance, follow these steps.
 
