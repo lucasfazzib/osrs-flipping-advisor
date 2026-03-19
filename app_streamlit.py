@@ -327,9 +327,14 @@ def render_dashboard():
         st.error("Disconnected from the matrix. Run the ingestion pipeline before opening this.")
         return
         
-    last_update = datetime.now().strftime('%H:%M local')
+    last_update = datetime.utcnow().strftime('%H:%M UTC')
     if 'updated_at' in df.columns:
-        last_update = df['updated_at'][0]
+        # Puxa o timestamp e garantir que o UX saiba q eh UTC Global
+        raw_ts = str(df['updated_at'][0])
+        if "UTC" not in raw_ts:
+            last_update = raw_ts + " UTC"
+        else:
+            last_update = raw_ts
 
     col_t1, col_t2 = st.columns([4, 1])
     with col_t1:
