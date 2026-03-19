@@ -82,6 +82,12 @@ def main():
         # 6. Save Ranked Opportunities Locally
         ranked_path = gold_root / "ranked_opportunities.parquet"
         ranked_df = df_liquid_gold.sort("liquidity_score", descending=True)
+        
+        # Inject sync timestamp
+        from datetime import datetime
+        now_str = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
+        ranked_df = ranked_df.with_columns(pl.lit(now_str).alias("updated_at"))
+        
         ranked_df.write_parquet(ranked_path)
 
         # 7. Sync to Cloud Data Warehouse (Supabase) if configured

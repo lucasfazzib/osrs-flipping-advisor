@@ -322,17 +322,21 @@ def show_quant_analytics_inner(row):
 
 def render_dashboard():
     # --- HEADER ---
+    df = load_market_intelligence()
+    if df is None:
+        st.error("Disconnected from the matrix. Run the ingestion pipeline before opening this.")
+        return
+        
+    last_update = datetime.now().strftime('%H:%M local')
+    if 'updated_at' in df.columns:
+        last_update = df['updated_at'][0]
+
     col_t1, col_t2 = st.columns([4, 1])
     with col_t1:
         st.markdown("<h1 style='margin-bottom:0;'>OSRS Flipping & Profit</h1>", unsafe_allow_html=True)
         st.markdown("<p style='color:#9ca3af; font-size: 0.9rem;'>Discover what to buy right now to make money on the Grand Exchange!</p>", unsafe_allow_html=True)
     with col_t2:
-        st.markdown(f"<div style='text-align: right; margin-top:10px;'><span style='font-size:0.8rem; color:#9ca3af;'>PRICES & DATA</span><br><span style='color:#10b981; font-weight:600;'>LIVE</span><br><span style='font-family:monospace; font-size:0.8rem; color:#6b7280;'>Updated: {datetime.now().strftime('%H:%M')}</span></div>", unsafe_allow_html=True)
-
-    df = load_market_intelligence()
-    if df is None:
-        st.error("Disconnected from the matrix. Run the ingestion pipeline before opening this.")
-        return
+        st.markdown(f"<div style='text-align: right; margin-top:10px;'><span style='font-size:0.8rem; color:#9ca3af;'>PRICES & DATA</span><br><span style='color:#10b981; font-weight:600;'>LIVE</span><br><span style='font-family:monospace; font-size:0.8rem; color:#6b7280;'>Updated at:<br>{last_update}</span></div>", unsafe_allow_html=True)
 
     # --- CONTROL PANEL (EXPANDER INSTEAD OF SIDEBAR) ---
     # Moved to an expander so mobile users can easily access it without opening a hidden sidebar
